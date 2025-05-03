@@ -1,2 +1,0 @@
-# This file is used internally by FFMPEG.
-file 'file:C:/Users/iwond/PycharmProjects/QuantVid1/media/videos/main/480p15/partial_movie_files/DefaultTemplate/2289379569_2704032357_223132457.mp4'

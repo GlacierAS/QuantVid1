@@ -1,5 +1,0 @@
-# This file is used internally by FFMPEG.
-file 'file:C:/Users/iwond/PycharmProjects/QuantVid1/media/videos/main/854p30/partial_movie_files/DefaultTemplate/4140469606_2704032357_223132457.mp4'
-file 'file:C:/Users/iwond/PycharmProjects/QuantVid1/media/videos/main/854p30/partial_movie_files/DefaultTemplate/355205087_1496854962_4293147696.mp4'
-file 'file:C:/Users/iwond/PycharmProjects/QuantVid1/media/videos/main/854p30/partial_movie_files/DefaultTemplate/355205087_4217992463_1737096507.mp4'
-file 'file:C:/Users/iwond/PycharmProjects/QuantVid1/media/videos/main/854p30/partial_movie_files/DefaultTemplate/355205087_594804836_4142541649.mp4'

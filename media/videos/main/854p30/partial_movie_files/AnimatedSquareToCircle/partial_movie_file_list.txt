@@ -1,5 +1,0 @@
-# This file is used internally by FFMPEG.
-file 'file:C:/Users/iwond/PycharmProjects/QuantVid1/media/videos/main/854p30/partial_movie_files/AnimatedSquareToCircle/4140469606_513577100_223132457.mp4'
-file 'file:C:/Users/iwond/PycharmProjects/QuantVid1/media/videos/main/854p30/partial_movie_files/AnimatedSquareToCircle/355205087_1597566494_557880437.mp4'
-file 'file:C:/Users/iwond/PycharmProjects/QuantVid1/media/videos/main/854p30/partial_movie_files/AnimatedSquareToCircle/355205087_650452285_557880437.mp4'
-file 'file:C:/Users/iwond/PycharmProjects/QuantVid1/media/videos/main/854p30/partial_movie_files/AnimatedSquareToCircle/355205087_3305342507_557880437.mp4'
