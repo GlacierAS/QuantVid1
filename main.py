@@ -1,6 +1,10 @@
 from manim import *
 import physanitk as tk
+from mrStarfruit import MRSF
+from enumcfg import * 
 
+from manim import config
+config["ffmpeg_executable"] = "C:/ffmpeg/bin/ffmpeg.exe"
 
 """
 Each method is a scene manually generated and brought to edit.
@@ -8,17 +12,204 @@ manim -pqk main.py Vid -o outputName
 """
 class Vid(Scene):
     def construct(self):
+        self.qtex = TexTemplate()
+        self.qtex.add_to_preamble(r"\usepackage{braket}")
+
         #self.quoteAnimation()
         #self.energyLevel()
         #self.preReqAni()
+        #self.overView()
         
-        self.overView()
+        
+        # Tracker for gradient phase
+        #t = ValueTracker(0)
+        #a = self.getApple(size = SSize.S, sp=UP* 0.1)
+        #p = MathTex(r"\text{How to describe} \;\;\;\;\;\;\; ?")
+        
+        #idea = MRSF.get_sfidea(size = SSize.M, mirror=True)
+        #idea.to_edge(DL)
 
+        #idea = ImageMobject("mrstarfruit/111.png")
+
+        #self.add(idea)
+        """
+        #self.play(FadeIn(idea))
+        self.play(
+            a.animate.shift(RIGHT * 1.65),
+
+        )
+        self.play(Write(p))
+        self.play(
+            a.animate.shift(UP * 3 + LEFT * 4),
+            p.animate.shift(UP * 3 + LEFT * 4),
+        )
+        
+        s1 = Tex("1. Assign properties").align_to(p, UL).shift(DOWN * 0.7)
+        s2 = Tex("2. Attach Coordinate").align_to(p, UL).shift(DOWN * 1.4)
+        s3 = Tex("3. Make Measurement").align_to(p, UL).shift(DOWN * 2.1)
+        propText1 = Tex(r"Position", color = YELLOW).shift(RIGHT * 3 + DOWN  * 1.5)
+        propText2 = Tex(r"Momentum", color = BLUE).shift(RIGHT * 3 + DOWN  * 2.2)
+        a_mid = self.getApple(size = SSize.M, sp=RIGHT * 2 + UP)
+        line = Line(a_mid.get_center() + DOWN * 0.6, propText1.get_center() + UP * 0.5)
+
+        self.play(Create(s1), Create(line), Create(propText1), Create(propText2))
+        
+        self.wait()
+
+        axes = Axes(
+            x_range=[-1, 5, 1],
+            y_range=[-3, 3, 1],
+            x_length=6,
+            tips=False
+        )
+        paxes = Axes(
+            x_range=[0, 2, 1],
+            y_range=[0, 2, 1],
+            x_length=2,
+            y_length=2,
+            tips=False,
+        )
+
+        # Label axes p
+        paxes.shift(RIGHT * 3 + UP * 2)
+        px_label = paxes.get_x_axis_label(r"p_x")
+        py_label = paxes.get_y_axis_label(r"p_y")
+
+        # Label axes x
+        axes.shift(RIGHT * 2)
+        x_label = axes.get_x_axis_label("x")
+        y_label = axes.get_y_axis_label("y")
+
+
+        self.play(
+            Create(axes), 
+            Create(x_label), 
+            Create(y_label),
+            Create(px_label),
+            Create(py_label),
+            Create(s2),
+            Create(paxes)
+            )
+        self.wait()
+
+        xvec = Arrow(axes.c2p(0, 0), axes.c2p(0, 0) + RIGHT * 2 + UP * 1, buff=0, color = YELLOW)
+        pvec = Arrow(paxes.c2p(0, 0), paxes.c2p(0, 0) + UP + RIGHT * 0.5, buff=0, color = BLUE)
+
+        propTextNew1 = MathTex(r"\vec{x}=(x,y)").shift(RIGHT * 3 + DOWN  * 1.5)
+        propTextNew1.color = YELLOW
+        
+        propTextNew2 = MathTex(r"\hat{p}=(p_x, p_y)").shift(RIGHT * 3 + DOWN  * 2.2)
+        propTextNew2.color = BLUE
+
+        self.play(
+            Transform(propText1, propTextNew1),
+            Transform(propText2, propTextNew2),
+            Create(xvec),
+            Create(pvec)
+        )
+        self.wait()
+        propTextNewNew1 = MathTex(r"\vec{x}=(2,1)").shift(RIGHT * 3 + DOWN  * 1.5)
+        propTextNewNew1.color = YELLOW
+        
+        propTextNewNew2 = MathTex(r"\hat{p}=(0.5, 1)").shift(RIGHT * 3 + DOWN  * 2.2)
+        propTextNewNew2.color = BLUE
+
+
+        self.play(
+            Transform(propText1, propTextNewNew1),
+            Transform(propText2, propTextNewNew2),
+            Create(s3),
+        )
+        """
+        self.wait(3)
+        # a2 = self.getApple(size = SSize.L, sp=DOWN)
+
+
+
+        #self.play(t.animate.increment_value(20 * PI), run_time=12, rate_func=linear)
     
-    def overView(self):
-        t = Tex("In this video:")
-        g1 = Tex("What")
+    def getApple(self, t=None, size=SSize.M, sp = 0):
+        # Get Apple
+        # if t of ValueTracker provided track the color of apple
+        # else return red apple
+        apple = SVGMobject("apple1.svg").shift(sp)
+        
+        match size:
+            case SSize.S:
+                apple.scale(0.3)
+                apple.set_stroke(width=2)
+            case SSize.M:
+                apple.scale(0.5)
+                apple.set_stroke(width=4)
+            case SSize.L:
+                apple.scale(1)
+                apple.set_stroke(width=6)
+            case SSize.XL:
+                apple.scale(2)
+                apple.set_stroke(width=10)
+        
+        # RED apple
+        for part in apple.submobjects:
+            if part.get_fill_color().to_hex() == "#000000":  # Only black parts
+                part.set_fill(RED, opacity=1)
+                self.play(FadeIn(apple))
+                return apple
 
+        def get_gradient_color(alpha):
+            c1 = interpolate_color(GREEN, BLUE, (np.sin(t.get_value()) + 1)/2)
+            c2 = interpolate_color(BLUE, GREEN, (np.sin(t.get_value() + PI/2) + 1)/2)
+            return interpolate_color(c1, c2, alpha)
+
+        fill_parts = []
+        # Initial fill only for black parts
+        for part in apple.submobjects:
+            if part.get_fill_color().to_hex() == "#000000":  # Only black parts
+                part.set_fill(get_gradient_color(0), opacity=1)
+                fill_parts.append(part)
+        # Updater to animate gradient change for black parts only
+        def update_gradient(mob):
+            for part in mob.submobjects:
+                if part in fill_parts:
+                    part.set_fill(get_gradient_color(0), opacity=1)
+
+        apple.add_updater(update_gradient)
+        self.play(FadeIn(apple))
+        return apple
+
+        
+
+    def overView(self):
+       
+        start = 3.5 * UP
+        t = Tex("In this video:")
+        g1 = Tex("1. What is a Quantum State?")
+        e1 = MathTex(r"\ket{a}", tex_template=self.qtex)
+        g3 = Tex("2. Coordinate system and Wave Function")
+        e3 = MathTex(r"\braket{ x |\psi  }=\psi(x)", tex_template=self.qtex)
+        g4 = Tex("3. Uncertainty and measurement").move_to(start + DOWN * 2)
+        e4 = MathTex(r"\Delta x\Delta p_{x} \ge \hbar/2", tex_template=self.qtex)
+        g5 = Tex("4. Schrödinger equation").move_to(start + DOWN * 2.5)
+        e5 = MathTex(r"\hat{H}\ket{\psi} & =E\ket{\psi}", tex_template=self.qtex)
+        l = [t, g1, e1, g3, e3, g4, e4, g5, e5]
+
+        b1 = SurroundingRectangle(e1, color=RED, buff=0.2)
+        b3 = SurroundingRectangle(e3, color=RED, buff=0.2)
+        b4 = SurroundingRectangle(e4, color=RED, buff=0.2)
+        b5 = SurroundingRectangle(e5, color=RED, buff=0.2)
+        b = [None, None, b1, None, b3, None, b4, None, b5]
+
+        for i, tex in enumerate(l): tex.move_to(start + DOWN * i * 0.8)
+        for i, box in enumerate(b): 
+            if box is not None: 
+                box.move_to(start + DOWN * i * 0.8)
+
+        self.play(
+            Succession(
+                *(Write(tex) for tex in l),
+                AnimationGroup(*(Create(box) for box in b if box is not None), lag_ratio=0.3),
+                Wait(),
+                ), run_time = 7
+        )
 
     def preReqAni(self):
         border457 = RoundedRectangle(
