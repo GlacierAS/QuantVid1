@@ -3,43 +3,175 @@ import physanitk as tk
 from mrStarfruit import MRSF
 from enumcfg import * 
 
-from manim import config
-config["ffmpeg_executable"] = "C:/ffmpeg/bin/ffmpeg.exe"
-
 """
 Each method is a scene manually generated and brought to edit.
 manim -pqk main.py Vid -o outputName
+
+for generating the tex, since manim sideview has some bug not recognizing Tex
+manim -pql main.py Vid -o o
 """
 class Vid(Scene):
     def construct(self):
         self.qtex = TexTemplate()
         self.qtex.add_to_preamble(r"\usepackage{braket}")
-
+        self.qtex.add_to_preamble(r"\usepackage{amssymb}")
         #self.quoteAnimation()
         #self.energyLevel()
         #self.preReqAni()
         #self.overView()
+        #self.howPhycistDescribeNormalObject()
+        #self.propertyValue()
         
-        
-        # Tracker for gradient phase
-        #t = ValueTracker(0)
-        #a = self.getApple(size = SSize.S, sp=UP* 0.1)
-        #p = MathTex(r"\text{How to describe} \;\;\;\;\;\;\; ?")
-        
-        #idea = MRSF.get_sfidea(size = SSize.M, mirror=True)
-        #idea.to_edge(DL)
+    
+    def propertyValue(self):
+        qs1 = Tex("Step 1: Representing the Object by Assigning Properties")
+        kpsi = MathTex(r"\text{Quantum State:} \ket{\psi}", "=", tex_template=self.qtex).shift(UP * 0.7)
+        posTex = Tex(r"Position", color = YELLOW)
+        momTex = Tex(r"Momentum", color = BLUE).shift(DOWN*0.7)
 
-        #idea = ImageMobject("mrstarfruit/111.png")
+        but_wait = Tex("Wait! QM set restrictions on values!")
 
-        #self.add(idea)
-        """
-        #self.play(FadeIn(idea))
+        self.play(FadeIn(qs1), qs1.animate.to_edge(UP))
+        self.play(
+            Succession(
+                Create(kpsi[0]),
+                Wait(),
+                kpsi[0].animate.shift(LEFT * 0.5),
+                Create(kpsi[1].shift(LEFT * 0.5)),
+            )
+        )
+
+
+        t = ValueTracker(0)
+        qa = self.getApple(size = SSize.S, t=t, sp=RIGHT * 2.4 + UP * 0.7)
+        self.play(FadeIn(qa))
+        
+        self.play(
+            t.animate.increment_value(20 * PI),
+            Succession(
+                AnimationGroup(
+                    Create(posTex),
+                    Create(momTex),
+                    lag_ratio=0.3
+                ),
+                Wait(14) #padding
+            ),
+            run_time = 16, 
+        )
+        onScreen = VGroup(posTex, momTex, qa, kpsi)
+        wait = Tex("Wait! Properties have Limitations!")
+        self.play(Transform(onScreen, wait), Wait(), FadeOut(onScreen))
+
+        discrete = Tex("1. Discrete finite number of values").shift(UP * 2.7)
+        spinVal = MathTex(r"\text{Spin} \in \left\{ m_s \in \mathbb{R} \;\middle|\; s \in \tfrac{1}{2} \mathbb{N}_0,\ m_s = -s + k,\ k \in \mathbb{Z},\ 0 \leq k \leq 2s \right\}",
+            tex_template=self.qtex
+        ).scale(0.8)
+        strike = Line(spinVal.get_left(), spinVal.get_right(), color=RED)
+        self.play(Succession(
+            Create(discrete),
+            FadeIn(spinVal),
+            Create(strike),
+        ))
+        self.play(
+            FadeOut(spinVal),
+            FadeOut(strike),
+        )
+        orbitalSet = MathTex(r"L \in \left\{ m \in \mathbb{Z} \;\middle|\; l \in \mathbb{N}_0, \ m = -l + k, \ k \in \mathbb{Z},\ 0 \leq k \leq 2l \right\}",
+                             tex_template=self.qtex).shift(UP * 1.3)
+        number_line = NumberLine(
+            x_range=[-4.5, 4.5, 1],  # Range from -5 to 5, step size of 1
+            length=10,  # Length of the number line
+            include_numbers=True,  # Include number labels
+            label_direction=DOWN,  # Position the labels below the ticks
+            numbers_to_include=[-4, -3, -2, -1, 0, 1, 2, 3, 4]  # Include integer values of hbar
+        )
+        
+        # Add label for the axis
+        label = MathTex(r"\text{Angular Momentum } \hbar").next_to(number_line, DOWN)
+
+        # Create yellow dots on integer values of hbar
+        yellow_dots = VGroup(*[
+            Dot(number_line.n2p(i), color=YELLOW) for i in range(-4, 5)
+        ])
+
+        # Create an arrow pointing to 3.32 on the number line
+        arrow = Arrow(start=number_line.n2p(3.32)+ DOWN * 2, end=number_line.n2p(3.32), color=WHITE, buff=0.1)
+
+        # Create the label for the arrow
+        label_text = Tex(r"Not allowed value $3.32 \hbar$").next_to(arrow.get_start(), DOWN)
+
+        # Add number line, dots, and label to the scene
+        self.play(Create(orbitalSet))
+        self.play(Create(number_line), Write(label))
+        self.play(FadeIn(yellow_dots))
+        self.wait()
+        self.play(GrowArrow(arrow), Write(label_text))
+
+        nl = VGroup(number_line, label, yellow_dots, arrow, label_text)
+        bound = MathTex(r"-m, -m+1, ..., -1, 0, 1, ..., m-1, m")
+        circle = Circle(radius=0.4, color=RED).shift(UP * 1.3 + LEFT * 0.93)
+        self.play(
+            Transform(nl, bound),
+            Write(circle),
+            Wait(),
+        )
+        finite = Tex("Finite number of orientations?").shift(DOWN)
+        hbar = MathTex(r"\hbar = 1.054571817... \times 10^{-34} \text{ Js}").shift(DOWN * 2)
+        self.play(Create(finite))
+        self.wait()
+        self.play(Create(hbar))
+        self.wait()
+        m_val = MathTex(r"m \text{ is VERY large for macroscopic object!}").shift(DOWN * 2)
+        self.play(Transform(hbar, m_val))
+        self.wait(2)
+        self.play(FadeOut(hbar), FadeOut(bound), 
+                  FadeOut(circle), FadeOut(orbitalSet),
+                  FadeOut(m_val), FadeOut(nl), FadeOut(finite))
+        
+        cont = Tex("2. Infinite continueous number of values").shift(UP * 2)
+
+        xax = NumberLine(
+            x_range=[-4.5, 4.5, 1],
+            length=10,
+            include_numbers=True,
+        )
+        xlabel = Tex("Position, Momentum, etc").next_to(xax, DOWN)
+
+        highlight_box = Rectangle(
+            width=xax.width + 0.4,
+            height=0.8,
+            color=PINK,
+            fill_color = PINK,
+            fill_opacity = 0.3,
+            stroke_opacity = 0
+        )
+        highlight_box.move_to(xax)
+
+
+        self.play(Create(cont))
+        self.play(Create(xax))
+        self.play(Write(xlabel), Create(highlight_box))
+
+        self.wait()
+
+    def howPhycistDescribeNormalObject(self):
+        a = self.getApple(size = SSize.S, sp=UP* 0.1)
+        self.play(FadeIn(a))
+        p = MathTex(r"\text{How to describe} \;\;\;\;\;\;\; ?")
+        
+        idea = MRSF.get_sfidea(size = SSize.M)
+        idea.to_edge(DL).shift(RIGHT * 1.4 + UP * 0.2)
+
+        # Flipping image... Manim pls fix #2412
+        idea.pixel_array = np.fliplr(idea.pixel_array)
+        
         self.play(
             a.animate.shift(RIGHT * 1.65),
 
         )
         self.play(Write(p))
         self.play(
+            FadeIn(idea),
             a.animate.shift(UP * 3 + LEFT * 4),
             p.animate.shift(UP * 3 + LEFT * 4),
         )
@@ -50,6 +182,7 @@ class Vid(Scene):
         propText1 = Tex(r"Position", color = YELLOW).shift(RIGHT * 3 + DOWN  * 1.5)
         propText2 = Tex(r"Momentum", color = BLUE).shift(RIGHT * 3 + DOWN  * 2.2)
         a_mid = self.getApple(size = SSize.M, sp=RIGHT * 2 + UP)
+        self.play(FadeIn(a_mid))
         line = Line(a_mid.get_center() + DOWN * 0.6, propText1.get_center() + UP * 0.5)
 
         self.play(Create(s1), Create(line), Create(propText1), Create(propText2))
@@ -120,13 +253,28 @@ class Vid(Scene):
             Transform(propText2, propTextNewNew2),
             Create(s3),
         )
-        """
+        
         self.wait(3)
-        # a2 = self.getApple(size = SSize.L, sp=DOWN)
+        
+        # Create a black transparent rectangle as a dimming overlay
+        dim_overlay = Rectangle(
+            width=config.frame_width,
+            height=config.frame_height,
+            fill_color=BLACK,
+            fill_opacity=0.75,  # Adjust dimming strength (0 = transparent, 1 = full black)
+            stroke_opacity=0  # No border
+        )
+        dim_overlay.move_to(ORIGIN)
 
-
-
-        #self.play(t.animate.increment_value(20 * PI), run_time=12, rate_func=linear)
+        # Play fade in of dimming effect
+        self.play(FadeIn(dim_overlay))
+        t = ValueTracker(0)
+        a1 = self.getApple(size = SSize.L, sp = LEFT * 2.5)
+        self.play(FadeIn(a1))
+        self.wait()
+        a2 = self.getApple(size = SSize.L, t=t, sp=RIGHT * 2.5)
+        self.play(FadeIn(a2))
+        self.play(t.animate.increment_value(20 * PI), run_time=12, rate_func=linear)
     
     def getApple(self, t=None, size=SSize.M, sp = 0):
         # Get Apple
@@ -148,12 +296,13 @@ class Vid(Scene):
                 apple.scale(2)
                 apple.set_stroke(width=10)
         
-        # RED apple
-        for part in apple.submobjects:
-            if part.get_fill_color().to_hex() == "#000000":  # Only black parts
-                part.set_fill(RED, opacity=1)
-                self.play(FadeIn(apple))
-                return apple
+        if t is None:
+            # RED apple
+            for part in apple.submobjects:
+                if part.get_fill_color().to_hex() == "#000000":  # Only black parts
+                    part.set_fill(RED, opacity=1)
+                    self.play(FadeIn(apple))
+                    return apple
 
         def get_gradient_color(alpha):
             c1 = interpolate_color(GREEN, BLUE, (np.sin(t.get_value()) + 1)/2)
@@ -173,7 +322,6 @@ class Vid(Scene):
                     part.set_fill(get_gradient_color(0), opacity=1)
 
         apple.add_updater(update_gradient)
-        self.play(FadeIn(apple))
         return apple
 
         
