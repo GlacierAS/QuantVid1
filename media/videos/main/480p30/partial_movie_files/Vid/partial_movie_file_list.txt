@@ -1,6 +1,0 @@
-# This file is used internally by FFMPEG.
-file 'file:/Users/douyichen/Movies/QuantVid/QuantVid1/media/videos/main/480p30/partial_movie_files/Vid/3161293378_1432596116_1207809477.mp4'
-file 'file:/Users/douyichen/Movies/QuantVid/QuantVid1/media/videos/main/480p30/partial_movie_files/Vid/4088896323_1878044649_3778381050.mp4'
-file 'file:/Users/douyichen/Movies/QuantVid/QuantVid1/media/videos/main/480p30/partial_movie_files/Vid/4088896323_4217992463_3253285577.mp4'
-file 'file:/Users/douyichen/Movies/QuantVid/QuantVid1/media/videos/main/480p30/partial_movie_files/Vid/4088896323_3676769226_958390482.mp4'
-file 'file:/Users/douyichen/Movies/QuantVid/QuantVid1/media/videos/main/480p30/partial_movie_files/Vid/4088896323_2844360058_4148659309.mp4'
