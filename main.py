@@ -2,26 +2,429 @@ from manim import *
 import physanitk as tk
 from mrStarfruit import MRSF
 from enumcfg import * 
+from scipy.stats import norm # for probabilistic calculations
 
 """
 Each method is a scene manually generated and brought to edit.
 manim -pqk main.py Vid -o outputName
-
-for generating the tex, since manim sideview has some bug not recognizing Tex
-manim -pql main.py Vid -o o
 """
 class Vid(Scene):
     def construct(self):
         self.qtex = TexTemplate()
         self.qtex.add_to_preamble(r"\usepackage{braket}")
         self.qtex.add_to_preamble(r"\usepackage{amssymb}")
+        
+        # PREFACE
         #self.quoteAnimation()
         #self.energyLevel()
         #self.preReqAni()
         #self.overView()
+        # PART I
         #self.howPhycistDescribeNormalObject()
         #self.propertyValue()
+        #self.take_a_break()
+        # PART 2
+        #self.qcoord()
+        #self.qcoord2_heisenburg()
+        # PART 3
+        self.measurements()
+    def measurements(self):
+         # ValueTrackers for bounds
+        a = ValueTracker(-1)
+        b = ValueTracker(1)
+        sigma = 1
+
+        # Axes
+        axes = Axes(
+            x_range=[-4, 4, 1],
+            y_range=[0, 0.5, 0.1],
+            x_length=10,
+            y_length=3,
+            axis_config={"include_numbers": False},
+            tips=False
+        )
+
+        x_label = axes.get_x_axis_label("x", edge=RIGHT, direction=DOWN)
+        y_label = axes.get_y_axis_label(r"|\psi|^2", edge=UP, direction=LEFT)
+
+        self.add(axes, x_label, y_label)
+
+        # Gaussian probability density function
+        def psi_squared(x):
+            return (1 / (np.sqrt(2 * np.pi) * sigma)) * np.exp(-x**2 / (2 * sigma**2))
+
+        graph = axes.plot(psi_squared, color=BLUE)
+
+        # Area between a and b
+        def get_area():
+            return axes.get_area(
+                graph,
+                x_range=(a.get_value(), b.get_value()),
+                color=BLUE,
+                opacity=0.4
+            )
+
+        area = always_redraw(get_area)
+
+        # Probability text
+        def get_prob_text():
+            prob = norm.cdf(b.get_value(), scale=sigma) - norm.cdf(a.get_value(), scale=sigma)
+            return MathTex(f"P = {prob:.3f}").to_corner(UR).scale(1)
+
+        prob_text = always_redraw(get_prob_text)
+
+        self.add(graph, area, prob_text)
+
+        # Animate values
+        self.wait(1)
+        self.play(a.animate.set_value(-2), b.animate.set_value(2), run_time=2)
+        self.wait(1)
+        self.play(a.animate.set_value(-0.5), b.animate.set_value(0.5), run_time=2)
+        self.wait(2)
+
+
+    def qcoord2_heisenburg(self):
+        qs2 = Tex("Step 2: Attach Coordinate System to the Object").to_edge(UP)
+        self.add(qs2)
+
+        heis = MathTex(r"\Delta x\Delta p_{x} \ge \frac{\hbar}{2}").next_to(qs2, DOWN).shift(DOWN * 0.5)
+        self.play(Write(heis))
+        self.wait()
+        # Constants
+        hbar = 1
+
+        # Trackers
+        x0 = ValueTracker(1)
+        delta_x = ValueTracker(2)
+
+        def get_delta_p():
+            return hbar / (2 * delta_x.get_value())
+
+        axis_x = NumberLine(
+            x_range=[-5, 5, 1],
+            length=10,  
+            include_tip=True,
+            include_numbers=False
+        ).shift(UP * 0.5)
+
+        axis_p = NumberLine(
+            x_range=[-5, 5, 1],
+            length=10,
+            include_tip=True,
+            include_numbers=False
+        ).next_to(axis_x, DOWN * 8)
+
+        # Axis labels
+        x_label = MathTex(r"\text{Position }  x").next_to(axis_x, DOWN)
+        p_label = MathTex(r"\text{Momentum }  p").next_to(axis_p, DOWN)
+
+        self.play(Create(VGroup(axis_x, axis_p, x_label, p_label)), run_time=3)
+
+        ## -- X Axis Visuals -- ##
+        arrow_x = always_redraw(lambda: Arrow(
+            start=axis_x.number_to_point(x0.get_value()) + DOWN * 1.2,
+            end=axis_x.number_to_point(x0.get_value()),
+            buff=0.1,
+            stroke_width=4,
+            color=YELLOW
+        ))
+
+        label_x = always_redraw(lambda: MathTex(r"68 \% \; x \text{ certainty}")
+                                .next_to(arrow_x.get_start(), DOWN).shift(UP * 0.2))
+
+        tick_left_x = always_redraw(lambda: Line(
+            axis_x.number_to_point(x0.get_value() - delta_x.get_value()) + DOWN * 0.2,
+            axis_x.number_to_point(x0.get_value() - delta_x.get_value()) + UP * 0.2,
+            color=BLUE
+        ))
+
+        tick_right_x = always_redraw(lambda: Line(
+            axis_x.number_to_point(x0.get_value() + delta_x.get_value()) + DOWN * 0.2,
+            axis_x.number_to_point(x0.get_value() + delta_x.get_value()) + UP * 0.2,
+            color=BLUE
+        ))
+
+        highlight_x = always_redraw(lambda: Rectangle(
+            height=0.4,
+            width=axis_x.number_to_point(x0.get_value() + delta_x.get_value())[0] -
+                  axis_x.number_to_point(x0.get_value() - delta_x.get_value())[0],
+            color=BLUE,
+            fill_opacity=0.3,
+            stroke_width=0
+        ).move_to(
+            (axis_x.number_to_point(x0.get_value() + delta_x.get_value())[0] +
+             axis_x.number_to_point(x0.get_value() - delta_x.get_value())[0]) / 2 * RIGHT +
+            axis_x.get_center()[1] * UP
+        ))
+
+        ## -- P Axis Visuals -- ##
+        arrow_p = always_redraw(lambda: Arrow(
+            start=axis_p.number_to_point(0) + DOWN * 1.2,
+            end=axis_p.number_to_point(0),
+            buff=0.1,
+            stroke_width=4,
+            color=YELLOW
+        ))
+
+        label_p = always_redraw(lambda: MathTex(r"68 \% \; p \text{ certainty}")
+                                .next_to(arrow_p.get_start(), DOWN).shift(UP * 0.2))
+
+        tick_left_p = always_redraw(lambda: Line(
+            axis_p.number_to_point(-get_delta_p()) + DOWN * 0.2,
+            axis_p.number_to_point(-get_delta_p()) + UP * 0.2,
+            color=GREEN
+        ))
+
+        tick_right_p = always_redraw(lambda: Line(
+            axis_p.number_to_point(get_delta_p()) + DOWN * 0.2,
+            axis_p.number_to_point(get_delta_p()) + UP * 0.2,
+            color=GREEN
+        ))
+
+        highlight_p = always_redraw(lambda: Rectangle(
+            height=0.4,
+            width=axis_p.number_to_point(get_delta_p())[0] -
+                  axis_p.number_to_point(-get_delta_p())[0],
+            color=GREEN,
+            fill_opacity=0.3,
+            stroke_width=0
+        ).move_to(
+            (axis_p.number_to_point(get_delta_p())[0] +
+             axis_p.number_to_point(-get_delta_p())[0]) / 2 * RIGHT +
+            axis_p.get_center()[1] * UP
+        ))
+
+        # Add all elements
+        self.play(FadeIn(VGroup(
+                arrow_x, label_x, tick_left_x, tick_right_x, highlight_x,
+                arrow_p, label_p, tick_left_p, tick_right_p, highlight_p)
+            )
+        )
+
+        # Animate to show changes
+        self.wait(1)
+        self.play(x0.animate.set_value(-2), delta_x.animate.set_value(1))
+        self.wait(1)
+        self.play(delta_x.animate.set_value(3))
+        self.wait(1)
+        self.play(delta_x.animate.set_value(0.2), x0.animate.set_value(2))
+        self.wait(1)
+        self.play(delta_x.animate.set_value(0.01))
         
+    def qcoord(self):
+        qs2 = Tex("Step 2: Attach Coordinate System to the Object")
+        self.play(FadeIn(qs2), qs2.animate.to_edge(UP))
+        
+        kpsi = MathTex(r"\ket{\psi}", tex_template = self.qtex).shift(UP * 0.7)
+        xkpsi = MathTex(r"\braket{x |\psi}", tex_template = self.qtex).shift(UP * 0.7)
+        pkpsi = MathTex(r"\braket{p_x |\psi}", tex_template = self.qtex).shift(UP * 0.7)
+        wf = MathTex(r"=", r"\psi(x)").shift(UP * 0.7 + RIGHT)
+
+        self.play(Write(kpsi))
+        self.wait()
+        self.play(Transform(kpsi, xkpsi))
+        self.wait()
+        self.play(Succession(Transform(kpsi, pkpsi), Wait(), Transform(kpsi, xkpsi)))
+        self.play(AnimationGroup(kpsi.animate.shift(LEFT * 0.5), Create(wf), lag_ratio=0.3))
+        self.wait()
+
+        what = Tex("What???").shift(RIGHT + DOWN * 0.7)
+        arr = Arrow(start=what.get_top(), end=wf.get_bottom(), buff=0.1)
+        self.play(Create(what), Create(arr))
+        self.wait(3)
+        qcoord = VGroup(kpsi, wf, what, arr)
+        self.play(qcoord.animate.shift(LEFT * 4))
+        
+
+        inCM = Tex("In classical mechanics:", color=YELLOW).shift(RIGHT * 3 + UP * 2)
+        CMline = NumberLine(
+            x_range=[0, 4, 1],  # Start, end, step
+            length=4,            # Short length in units
+            include_numbers=True,
+        ).next_to(inCM, DOWN * 2)
+        
+        x_col = MathTex(r"x:").next_to(CMline, LEFT).shift(UP * 0.2)
+        self.play(
+            Create(inCM), Create(CMline), 
+            Create(x_col)
+        )
+
+        value_tracker = ValueTracker(2)
+
+        arrow = always_redraw(lambda: Arrow(
+            start=CMline.number_to_point(value_tracker.get_value()) + DOWN * 1.5,
+            end=CMline.number_to_point(value_tracker.get_value()) + DOWN * 0.5,
+            buff=0.05,
+            stroke_width=4
+        ))
+
+        # Label showing the current value at the start of the arrow
+        label = always_redraw(lambda: DecimalNumber(
+            value_tracker.get_value(),
+            num_decimal_places=2,
+        ).next_to(arrow.get_start(), DOWN))
+        CMapple = self.getApple(size = SSize.S).next_to(arrow, UP)
+        self.add(arrow, label)
+
+        self.play(Create(CMapple), Create(arrow), Write(label))
+
+        # Animate the value tracker changing, which moves the arrow and updates the label
+        self.play(value_tracker.animate.set_value(1), CMapple.animate.shift(LEFT), run_time=1)
+        self.play(value_tracker.animate.set_value(4), CMapple.animate.shift(RIGHT * 3), run_time=2)
+        self.play(value_tracker.animate.set_value(2.24), CMapple.animate.shift(LEFT * 1.76), run_time=1)
+        self.wait()
+
+        x_is_num = MathTex(r"x \to 2.24 \text{ is a number!}").next_to(label, DOWN)
+        yellow_rec = SurroundingRectangle(label, color=YELLOW, buff=0.1)
+        self.play(Create(yellow_rec), run_time=0.5)
+        self.play(Create(x_is_num))
+
+        self.wait()
+        x_rep = MathTex(r"\text{PositionRep(Apple)}", r"=", r"x").next_to(x_is_num, DOWN)
+        self.play(Create(x_rep))
+        self.wait()
+
+        x_pos = Tex("Position(Apple)").next_to(x_rep, DOWN * 2)
+        x_pos_vec = Arrow(start=x_pos.get_edge_center(RIGHT), end=x_rep[2].get_center())
+        
+        self.wait()
+        self.play(Create(x_pos), Create(x_pos_vec))
+        kpsi_bg = BackgroundRectangle(
+            kpsi,
+            color=BLUE,
+            fill_opacity=0.3,
+            buff=0.1
+        )
+        wf_bg = BackgroundRectangle(
+            wf[1],
+            color=YELLOW,
+            fill_opacity=0.3,
+            buff=0.1
+        )
+        x_rep_bg_0 = BackgroundRectangle(
+            x_rep[0],
+            color=BLUE,
+            fill_opacity=0.3,
+            buff=0.1
+        )
+        x_rep_bg_1 = BackgroundRectangle(
+            x_rep[2],
+            color=YELLOW,
+            fill_opacity=0.3,
+            buff=0.1
+        )
+        self.play(Create(kpsi_bg), Create(x_rep_bg_0))
+        self.wait()
+        self.play(Create(wf_bg), Create(x_rep_bg_1))
+        self.wait()
+        wf_text = Tex("Wavefunction?").next_to(arr, DOWN)
+        self.play(Transform(what, wf_text))
+        self.wait()
+        complicated = MathTex(r"x \overset{\text{wtf???}}{\to}\left(  \frac{m\omega}{\pi\hbar} \right)^{1/4} \exp\left( -\frac{m\omega x^2}{2\hbar} \right)=\psi(x)",
+                              tex_template = self.qtex).next_to(wf_text, DOWN)
+        self.play(Create(complicated.scale(0.7)))
+        self.wait()
+
+        start = complicated.get_corner(DL)
+        end = complicated.get_corner(UR)
+
+        strike = Line(start, end, color=RED)
+
+        self.play(Create(strike))
+        self.wait()
+
+        # Second part of QCoord
+        everything_so_far = VGroup(
+            kpsi, wf, what, arr,
+            inCM, CMline,
+            arrow, label,
+            x_is_num, x_rep, x_pos, x_pos_vec,
+            kpsi_bg, wf_bg, x_rep_bg_0, x_rep_bg_1,
+            wf_text, complicated, strike, yellow_rec, CMapple, x_col
+        )
+        self.play(FadeOut(everything_so_far))
+        
+        cm_fact = MathTex(r"\text{CM: Position}(\;\;\;\;\;)=\text{PositionRep}(\;\;\;\;\;)").shift(UP)
+        f_ma = MathTex(r"\vec{F}=m \vec{a}=\frac{d\vec{p}}{dt}").shift(DOWN * 0.5)
+        regular_apple1 = self.getApple(size = SSize.S).shift(UP + LEFT * 0.73)
+        regular_apple2 = self.getApple(size = SSize.S).shift(UP + RIGHT * 3.66)
+        
+        self.play(Write(cm_fact), Create(regular_apple1), Create(regular_apple2))
+        self.play(FadeIn(f_ma))
+        self.play(f_ma.animate.shift(LEFT * 2))
+        
+        changes_motion = Tex(r"Changes postion", color=YELLOW).next_to(f_ma, RIGHT).shift(RIGHT)
+        changes_motion_arrow = Arrow(start=changes_motion.get_edge_center(LEFT), end=f_ma.get_edge_center(RIGHT), color = YELLOW)
+        
+        
+        self.play(Write(changes_motion), Write(changes_motion_arrow))
+        f_ma_group = VGroup(f_ma, changes_motion, changes_motion_arrow)
+        cm_fact_group = VGroup(cm_fact, regular_apple1, regular_apple2)
+        self.play(
+            AnimationGroup(
+                cm_fact_group.animate.next_to(qs2, DOWN),
+                f_ma_group.animate.shift(UP * 2),
+                lag_ratio=0.1
+            )
+        )
+
+        t = ValueTracker(0)
+        qa = self.getApple(size = SSize.S, t=t, sp=RIGHT * 0.1)
+        qa2 = self.getApple(size = SSize.S, t=t, sp=LEFT * 2.1 + DOWN * 3)
+        qm_fact = MathTex(r"\text{QM: Position}(\;\;\;\;\;)=\text{Random?}")
+        
+        schord_eq = MathTex(r"i \hbar \frac{\partial}{\partial t} \ket{\psi(t)} = \hat{H} \ket{\psi(t)}", tex_template=self.qtex).shift(DOWN + LEFT * 1.8)
+        changes_motion_q = Tex(r"Changes state", color=BLUE).next_to(schord_eq, RIGHT).shift(RIGHT)
+        changes_motion_arrow_q = Arrow(start=changes_motion_q.get_edge_center(LEFT), end=schord_eq.get_edge_center(RIGHT), color = BLUE)
+        q_schord_group = VGroup(schord_eq, changes_motion_q, changes_motion_arrow_q)
+
+        xp_incompatibility = MathTex(r"x\text{ and } p \text{ incompatible?}", color=GREEN).shift(DOWN*2)
+        measure_position = Tex(r"\text{Measure(Position}(\;\;\;\;\;)\text{) changes momentum and vice versa!}").shift(DOWN * 3)
+
+
+
+        self.play(FadeIn(qa), Write(qm_fact))
+        self.play(
+            t.animate.increment_value(20 * PI),
+            Succession(
+                Wait(15),
+                Create(q_schord_group),
+                Wait(15),
+                Create(xp_incompatibility),
+                Wait(15),
+                Create(VGroup(measure_position, qa2)),
+                Wait(15), run_time=63
+            ), run_time=63
+        )
+
+        
+        everything_so_far2 = VGroup(f_ma_group, cm_fact_group, q_schord_group, xp_incompatibility, measure_position, qa, qa2, qm_fact)
+        self.play(FadeOut(everything_so_far2))
+        self.wait()
+        
+
+    def take_a_break(self):
+        msg = """
+            A more formal discussion of the limitations of physical properties 
+        involves recognizing that every property has a representation as a
+        subspace of some extended Hilbert space, with either a finite or
+        uncountably infinite set of basis vectors called eigenvectors, each
+        associated with an eigenvalue. 
+        
+            Each eigenvalue represents a physically measurable quantity.
+
+            I will get to the eigenvectors later, but I will avoid mentioning
+        the Hilbert space...
+        """
+        takeBreak = Tex("Take a break!").to_edge(UP)
+        self.wait()
+        self.play(Create(takeBreak))
+        do_you_know = Text(msg, width=11).shift(UP * 0.5)
+        self.play(Write(do_you_know), run_time = 7)
+        box = SurroundingRectangle(do_you_know, color=RED, buff=0.2)
+        self.play(Write(box))
+
+        # TODO: Insert sleeping prof starfruit
     
     def propertyValue(self):
         qs1 = Tex("Step 1: Representing the Object by Assigning Properties")
@@ -29,7 +432,6 @@ class Vid(Scene):
         posTex = Tex(r"Position", color = YELLOW)
         momTex = Tex(r"Momentum", color = BLUE).shift(DOWN*0.7)
 
-        but_wait = Tex("Wait! QM set restrictions on values!")
 
         self.play(FadeIn(qs1), qs1.animate.to_edge(UP))
         self.play(
@@ -59,8 +461,15 @@ class Vid(Scene):
             run_time = 16, 
         )
         onScreen = VGroup(posTex, momTex, qa, kpsi)
-        wait = Tex("Wait! Properties have Limitations!")
-        self.play(Transform(onScreen, wait), Wait(), FadeOut(onScreen))
+        wait = Tex("Wait! Value of properties have limitations!").shift(UP * 1.5)
+        # TODO: add mr starfruit shocked!
+        self.play(
+            Succession(
+                Transform(onScreen, wait), 
+                Wait(), 
+                FadeOut(onScreen)
+            )
+        )
 
         discrete = Tex("1. Discrete finite number of values").shift(UP * 2.7)
         spinVal = MathTex(r"\text{Spin} \in \left\{ m_s \in \mathbb{R} \;\middle|\; s \in \tfrac{1}{2} \mathbb{N}_0,\ m_s = -s + k,\ k \in \mathbb{Z},\ 0 \leq k \leq 2s \right\}",
@@ -153,6 +562,10 @@ class Vid(Scene):
         self.play(Write(xlabel), Create(highlight_box))
 
         self.wait()
+        contScreen = VGroup(xax, xlabel, highlight_box)
+        eigen = MathTex(r"\text{Allowed values} \to \text{eigenvalues}")
+        self.play(Transform(contScreen, eigen))
+        self.wait()
 
     def howPhycistDescribeNormalObject(self):
         a = self.getApple(size = SSize.S, sp=UP* 0.1)
@@ -228,10 +641,10 @@ class Vid(Scene):
         xvec = Arrow(axes.c2p(0, 0), axes.c2p(0, 0) + RIGHT * 2 + UP * 1, buff=0, color = YELLOW)
         pvec = Arrow(paxes.c2p(0, 0), paxes.c2p(0, 0) + UP + RIGHT * 0.5, buff=0, color = BLUE)
 
-        propTextNew1 = MathTex(r"\vec{x}=(x,y)").shift(RIGHT * 3 + DOWN  * 1.5)
+        propTextNew1 = MathTex(r"\text{PositionRep(Apple)}=(x,y)").shift(RIGHT * 3 + DOWN  * 1.5).scale(0.8)
         propTextNew1.color = YELLOW
         
-        propTextNew2 = MathTex(r"\hat{p}=(p_x, p_y)").shift(RIGHT * 3 + DOWN  * 2.2)
+        propTextNew2 = MathTex(r"\text{MomentumRep(Apple)}=(p_x, p_y)").shift(RIGHT * 3 + DOWN  * 2.2).scale(0.8)
         propTextNew2.color = BLUE
 
         self.play(
@@ -241,10 +654,10 @@ class Vid(Scene):
             Create(pvec)
         )
         self.wait()
-        propTextNewNew1 = MathTex(r"\vec{x}=(2,1)").shift(RIGHT * 3 + DOWN  * 1.5)
+        propTextNewNew1 = MathTex(r"\text{Position(Apple)}=(2,1)").shift(RIGHT * 3 + DOWN  * 1.5).scale(0.8)
         propTextNewNew1.color = YELLOW
         
-        propTextNewNew2 = MathTex(r"\hat{p}=(0.5, 1)").shift(RIGHT * 3 + DOWN  * 2.2)
+        propTextNewNew2 = MathTex(r"\text{Momentum(Apple)}=(0.5, 1)").shift(RIGHT * 3 + DOWN  * 2.2).scale(0.8)
         propTextNewNew2.color = BLUE
 
 
@@ -301,7 +714,6 @@ class Vid(Scene):
             for part in apple.submobjects:
                 if part.get_fill_color().to_hex() == "#000000":  # Only black parts
                     part.set_fill(RED, opacity=1)
-                    self.play(FadeIn(apple))
                     return apple
 
         def get_gradient_color(alpha):
