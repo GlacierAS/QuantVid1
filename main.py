@@ -26,12 +26,214 @@ class Vid(Scene):
         # PART 2
         #self.qcoord()
         #self.qcoord2_heisenburg()
+        # TODO: Take a break2 
         # PART 3
-        self.measurements()
+        #self.measurements()
+        #self.measurements2()
+        # TODO: Take a break3
+        self.measurements3()
+    def measurements3(self):
+        qs3 = Tex("Step 3: Making measurements").to_edge(UP)
+        self.add(qs3)
+
+        sigma = 1
+        axes = Axes(
+            x_range=[-4, 4, 1],
+            y_range=[0, 0.5, 0.1],
+            x_length=10,
+            y_length=3,
+            axis_config={"include_numbers": False},
+            tips=False
+        ).shift(UP * 0.5)
+
+        x_label = axes.get_x_axis_label("x", edge=RIGHT, direction=DOWN)
+        y_label = axes.get_y_axis_label(r"|\psi(x)|^2", edge=UP, direction=LEFT)
+        
+        self.play(Create(VGroup(axes, x_label, y_label)), run_time = 2)
+
+        # Gaussian probability density function
+        def psi_squared(x):
+            return (1 / (np.sqrt(2 * np.pi) * sigma)) * np.exp(-x**2 / (2 * sigma**2))
+
+        graph = axes.plot(psi_squared, color=BLUE)
+        self.play(Create(graph))
+
+        qapple_ls = []
+        opacity_ls = [0.2, 0.4, 0.6, 0.8, 0.8, 0.6, 0.4, 0.2]
+        t = ValueTracker(0)
+        for i, tick in enumerate(axes.x_axis.ticks):
+            pos = tick.get_center() + DOWN * 0.7
+            # maxinum is 4
+            opacity = opacity_ls[i]
+
+            print(opacity, psi_squared(i - 4)/4.0)
+            qa = self.getApple(size = SSize.S, t=t, sp=pos, o=opacity)
+            qa.set_opacity(opacity)
+            self.play(FadeIn(qa), run_time = 0.2)
+            qapple_ls.append(qa)
+
+            if i == 3: # for center since no tick
+                qc = self.getApple(size = SSize.S, t=t, sp=pos + RIGHT * 1.25)
+                self.play(FadeIn(qc), run_time = 0.2)
+                qapple_ls.append(qc)
+
+        superposition = Tex(r"Exist in ALL state! ", "Superposition!").next_to(qapple_ls[4], DOWN).shift(DOWN * 0.5)
+        self.play(
+            t.animate.increment_value(20 * PI),
+            
+            Succession(
+                Wait(10),
+                Create(superposition[0]),
+                Wait(),
+                Create(superposition[1]),
+                Wait(7)
+            ),
+            run_time = 20)
+
+        eig_apple = self.getApple(size = SSize.S, t=t, sp=axes.coords_to_point(1.2, 0) + DOWN * 0.7)
+        
+        # direc delta function
+        dd = Arrow(start=axes.coords_to_point(1.2, 0), end=axes.coords_to_point(1.2, 0) + UP * 2.5, color=BLUE, buff=0)
+        apples = VGroup(qapple_ls)
+        collapse = Tex(r"Collapse!", color=YELLOW).next_to(qapple_ls[4], DOWN).shift(DOWN * 0.5)
+        self.play(
+            Transform(graph, dd),
+            Succession(
+                FadeIn(apples, run_time=0.1),
+                FadeOut(apples, run_time=0.1),
+                FadeIn(apples, run_time=0.1),
+                FadeOut(apples, run_time=0.1),
+                FadeIn(apples, run_time=0.1),
+                FadeOut(apples, run_time=0.1),
+                FadeIn(apples, run_time=0.1),
+                FadeOut(apples, run_time=0.1),
+                FadeIn(apples, run_time=0.1),
+                FadeOut(apples, run_time=0.1),
+            ),
+            Transform(superposition, collapse)
+        )
+        self.add(eig_apple)
+        self.wait()
+
+        self.play(Create(Tex(r'Maximum \\ Momentum \\ Uncertainty!', color=YELLOW ).next_to(dd, RIGHT)))
+        self.wait()
+        #TODO: ADD Prof Starfruit idea on left simultaneous for max momentum uncertainty text
+    def measurements2(self):
+        qs3 = Tex("Step 3: Making measurements").to_edge(UP)
+        self.add(qs3)
+
+        op = MathTex(r"\hat{x}\ket{\psi}  \text{ or }\hat{x}\psi(x)\text{ or }\hat{x}\psi(p_x)", tex_template=self.qtex)
+        mes = Tex(r"Give position according to \\ probability distribution \\ in their coordinate system", color=YELLOW).shift(RIGHT * 3)
+        
+        self.play(Create(op))
+        self.play(op.animate.shift(LEFT * 3.5))
+
+        arr = Arrow(start = mes.get_edge_center(LEFT), end=op.get_edge_center(RIGHT), color=YELLOW)
+    
+        self.play(Create(arr), Create(mes))
+
+        l1 = VGroup(arr, mes, op)
+        self.play(l1.animate.shift(UP * 2))
+        xhat_pos = MathTex(r"\hat{x}=x \leftarrow \text{Position Coordinate}").next_to(l1, DOWN)
+        xhat_mom = MathTex(r"\hat{x}=i\hbar \frac{ \partial }{ \partial p } \leftarrow \text{Momentum Coordinate}").next_to(xhat_pos, DOWN)
+
+        self.play(Create(xhat_pos), Create(xhat_mom))
+        # Expectation value of position (QM)
+        exp_val_eq = MathTex(
+            r"\langle x \rangle = \int_{-\infty}^{\infty} \psi(x)^* \hat{x} \psi(x) dx", 
+            font_size=42
+        )
+
+        # Standard error (uncertainty) in position
+        uncertainty_eq = MathTex(
+            r"\Delta x = \sqrt{\langle x^2 \rangle - \langle x \rangle^2}", 
+            font_size=42
+        )
+
+        # Center-aligned group
+        equations = VGroup(exp_val_eq, uncertainty_eq).arrange(DOWN, center=True, buff=0.6).shift(DOWN * 2.3)
+
+        # Animate
+        self.wait(1)
+        self.play(Write(equations))
+        self.play(equations.animate.shift(LEFT * 3))
+        not_focus = Tex(r"You can do these \\ to report value! \\ (Not our focus today...)", color=RED).next_to(equations, RIGHT).shift(RIGHT)
+        arr1 = Arrow(start = not_focus.get_edge_center(LEFT), end=equations.get_edge_center(RIGHT), color=RED)
+        self.play(Create(not_focus), Create(arr1))
+        self.wait()
+        self.play(FadeOut(arr, arr1, not_focus, equations, xhat_mom, xhat_pos, l1))
+        self.wait()
+
+        # Create the big circle (pool of states)
+        circle = Circle(radius=2.5, color=BLUE).shift(LEFT * 3 + DOWN * 0.5)
+        title = Tex("Position eigenstates").next_to(circle, UP)
+        self.play(Create(circle))
+        self.play(Write(title))
+
+        # Eigenstate labels
+        eigenstates = [r"\ket{1}", r"\ket{1.13}", r"\ket{2.2}", r"\ket{0.5}", r"\ket{3.14}", r"\ket{-1.2}", r"\ket{0}"]
+        placed_labels = [] # (state, eigval)
+
+        for state in eigenstates:
+            while True:  
+                x = np.random.uniform(-2.4, 2.4)
+                y = np.random.uniform(-2.4, 2.4)
+                pos = np.array([x, y, 0]) + circle.get_center()
+
+                # Check within the circle
+                if np.linalg.norm(pos - circle.get_center()) >= 1.8:
+                    continue
+
+                # Check spacing to previous labels
+                if all(np.linalg.norm(pos - lbl.get_center()) > 0.9 for (lbl, _) in placed_labels):
+                    label = MathTex(state, tex_template=self.qtex).move_to(pos)
+                    placed_labels.append((label, state[5:-1]))
+                    self.play(Write(label), run_time=0.3)
+                    break  # Success, move to next state
+
+        self.wait(2)
+
+        for (eigstate, eigval) in placed_labels:
+            eigstate = eigstate.copy()
+            eigeqn = MathTex(r'\hat{x}\ket{' + f'{eigval}' + r'}', f'={eigval}' + r'\ket{' +f'{eigval}' + r'}', tex_template=self.qtex).shift(RIGHT * 3)
+            self.add(eigstate)
+            self.play(eigstate.animate.move_to(RIGHT * 2))
+            measure = Tex(r'Measure!', color=YELLOW).next_to(eigeqn, DOWN)
+            self.wait()
+            self.add(measure)
+            self.play(Transform(eigstate, eigeqn[0]))
+            
+            self.wait(0.5)
+            self.play(Write(eigeqn[1]), FadeOut(measure))
+            self.wait()
+            self.play(FadeOut(eigstate, eigeqn[1]))
+
+        pool = VGroup([t[0] for t in placed_labels], circle)
+
+        gen_eig_eqn = MathTex(r'\hat{x}\ket{x_{0}}=x_{0}', '?', tex_template=self.qtex).shift(RIGHT * 3)
+        ketx0 = MathTex(r'\ket{x_{0}}', tex_template=self.qtex).next_to(gen_eig_eqn, RIGHT).shift(LEFT * 0.3)
+        eig_val_eqn_text = Tex('Eigenvalue Equation:').next_to(gen_eig_eqn, UP)
+        self.play(Create(gen_eig_eqn))
+        self.wait(0.5)
+        self.play(FadeOut(gen_eig_eqn[1]), Create(ketx0), Create(eig_val_eqn_text))
+        self.wait()
+        gen_eig_fun = MathTex(r'\hat{x}\psi(x)=x_{0} \psi(x)', tex_template=self.qtex).shift(RIGHT * 3)
+        self.play(Transform(gen_eig_eqn, gen_eig_fun), FadeOut(ketx0))
+        self.wait()
+        pos_sol = MathTex(r'\text{Solve} \implies \psi(x)=\delta(x-x_{0})').next_to(gen_eig_eqn, DOWN)
+        self.play(Create(pos_sol))
+        self.wait()
+        self.play(FadeOut(VGroup(pos_sol, gen_eig_eqn, eig_val_eqn_text, pool, title)))
+
+
     def measurements(self):
-         # ValueTrackers for bounds
-        a = ValueTracker(-1)
-        b = ValueTracker(1)
+        qs3 = Tex("Step 3: Making measurements")
+        self.play(FadeIn(qs3), qs3.animate.to_edge(UP))
+
+
+        # ValueTrackers for bounds
+        a = ValueTracker(-0.5)
+        b = ValueTracker(1.5)
         sigma = 1
 
         # Axes
@@ -42,12 +244,14 @@ class Vid(Scene):
             y_length=3,
             axis_config={"include_numbers": False},
             tips=False
-        )
+        ).shift(DOWN)
 
         x_label = axes.get_x_axis_label("x", edge=RIGHT, direction=DOWN)
-        y_label = axes.get_y_axis_label(r"|\psi|^2", edge=UP, direction=LEFT)
+        y_label = axes.get_y_axis_label(r"|\psi(x)|^2", edge=UP, direction=LEFT)
+        p_label = axes.get_x_axis_label("p_x", edge=RIGHT, direction=DOWN)
+        y_p_label = axes.get_y_axis_label(r"|\psi(p_x)|^2", edge=UP, direction=LEFT)
 
-        self.add(axes, x_label, y_label)
+        self.play(Create(VGroup(axes, x_label, y_label)), run_time = 2)
 
         # Gaussian probability density function
         def psi_squared(x):
@@ -69,19 +273,51 @@ class Vid(Scene):
         # Probability text
         def get_prob_text():
             prob = norm.cdf(b.get_value(), scale=sigma) - norm.cdf(a.get_value(), scale=sigma)
-            return MathTex(f"P = {prob:.3f}").to_corner(UR).scale(1)
+            return MathTex(r"\text{Area = Probability}" + f"= {prob:.3f}").next_to(axes, DOWN).scale(1)
 
+        eqn = MathTex(r"\int_{a}^b|\psi(x)|^2dx=\text{Probability of measuring } x \text{ in range }[a,b]")
+        eqn_p = MathTex(r"\int_{a}^b|\psi(p_x)|^2dp_x=\text{Probability of measuring } p_x \text{ in range }[a,b]").shift(UP * 1.8)
+
+        
         prob_text = always_redraw(get_prob_text)
+        self.play(Write(eqn.shift(UP * 1.8)))
 
-        self.add(graph, area, prob_text)
+        self.play(Create(VGroup(graph, area)), run_time=4)
+        self.play(Create(prob_text))
 
         # Animate values
         self.wait(1)
-        self.play(a.animate.set_value(-2), b.animate.set_value(2), run_time=2)
+        self.play(a.animate.set_value(-2), b.animate.set_value(1), run_time=2)
         self.wait(1)
         self.play(a.animate.set_value(-0.5), b.animate.set_value(0.5), run_time=2)
-        self.wait(2)
+        self.wait(1)
+        self.play(a.animate.set_value(-1), b.animate.set_value(2.3), run_time=2)
+        self.wait(1)
 
+        x_label.save_state()
+        y_label.save_state()
+        eqn.save_state()
+        self.play(
+            Transform(x_label, p_label),
+            Transform(y_label, y_p_label),
+            Transform(eqn, eqn_p)
+        )
+        self.wait()
+        self.play(Restore(x_label), Restore(y_label), Restore(eqn))
+
+        rmk1 = MathTex(r"\int_{-\infty}^\infty|\psi(x)|^2dx=1").shift(UP * 1.8)
+        self.wait()
+        self.play(Transform(eqn, rmk1), a.animate.set_value(-4), b.animate.set_value(4))
+        self.wait()
+        self.play(FadeOut(VGroup(x_label, y_label, axes, area, graph, prob_text)))
+        rmk2 = MathTex(r"\psi(x) \text{ can be complex!}").shift(UP * 1.5)
+        self.play(Transform(eqn, rmk2))
+        i_def = MathTex(r"i=\sqrt{-1}")
+        self.wait()
+        self.play(Create(i_def))
+        self.wait()
+        its_ok = Tex("It's ok! Just a mathmatical tool!").shift(DOWN * 1.5)
+        self.play(Create(its_ok))
 
     def qcoord2_heisenburg(self):
         qs2 = Tex("Step 2: Attach Coordinate System to the Object").to_edge(UP)
@@ -689,9 +925,10 @@ class Vid(Scene):
         self.play(FadeIn(a2))
         self.play(t.animate.increment_value(20 * PI), run_time=12, rate_func=linear)
     
-    def getApple(self, t=None, size=SSize.M, sp = 0):
+    def getApple(self, t=None, size=SSize.M, sp = 0, o=1):
         # Get Apple
         # if t of ValueTracker provided track the color of apple
+        # o is opacity
         # else return red apple
         apple = SVGMobject("apple1.svg").shift(sp)
         
@@ -713,7 +950,7 @@ class Vid(Scene):
             # RED apple
             for part in apple.submobjects:
                 if part.get_fill_color().to_hex() == "#000000":  # Only black parts
-                    part.set_fill(RED, opacity=1)
+                    part.set_fill(RED, opacity=o)
                     return apple
 
         def get_gradient_color(alpha):
@@ -725,13 +962,13 @@ class Vid(Scene):
         # Initial fill only for black parts
         for part in apple.submobjects:
             if part.get_fill_color().to_hex() == "#000000":  # Only black parts
-                part.set_fill(get_gradient_color(0), opacity=1)
+                part.set_fill(get_gradient_color(0), opacity=o)
                 fill_parts.append(part)
         # Updater to animate gradient change for black parts only
         def update_gradient(mob):
             for part in mob.submobjects:
                 if part in fill_parts:
-                    part.set_fill(get_gradient_color(0), opacity=1)
+                    part.set_fill(get_gradient_color(0), opacity=o)
 
         apple.add_updater(update_gradient)
         return apple
