@@ -20,7 +20,7 @@ class Vid(Scene):
         #self.preReqAni()
         #self.overView()
         # PART I
-        #self.howPhycistDescribeNormalObject()
+        self.howPhycistDescribeNormalObject()
         #self.propertyValue()
         #self.take_a_break()
         # PART 2
@@ -31,7 +31,7 @@ class Vid(Scene):
         #self.measurements()
         #self.measurements2()
         # TODO: Take a break3
-        self.measurements3()
+        #self.measurements3()
     def measurements3(self):
         qs3 = Tex("Step 3: Making measurements").to_edge(UP)
         self.add(qs3)
@@ -707,7 +707,7 @@ class Vid(Scene):
             )
         )
 
-        discrete = Tex("1. Discrete finite number of values").shift(UP * 2.7)
+        discrete = Tex("1. Discrete infinite number of values").shift(UP * 2.7)
         spinVal = MathTex(r"\text{Spin} \in \left\{ m_s \in \mathbb{R} \;\middle|\; s \in \tfrac{1}{2} \mathbb{N}_0,\ m_s = -s + k,\ k \in \mathbb{Z},\ 0 \leq k \leq 2s \right\}",
             tex_template=self.qtex
         ).scale(0.8)
@@ -828,9 +828,9 @@ class Vid(Scene):
         s1 = Tex("1. Assign properties").align_to(p, UL).shift(DOWN * 0.7)
         s2 = Tex("2. Attach Coordinate").align_to(p, UL).shift(DOWN * 1.4)
         s3 = Tex("3. Make Measurement").align_to(p, UL).shift(DOWN * 2.1)
-        propText1 = Tex(r"Position", color = YELLOW).shift(RIGHT * 3 + DOWN  * 1.5)
-        propText2 = Tex(r"Momentum", color = BLUE).shift(RIGHT * 3 + DOWN  * 2.2)
-        a_mid = self.getApple(size = SSize.M, sp=RIGHT * 2 + UP)
+        propText1 = Tex(r"Position", color = YELLOW).shift(RIGHT * 3 + DOWN  * 2.2)
+        propText2 = Tex(r"Momentum", color = BLUE).shift(RIGHT * 3 + DOWN  * 2.9)
+        a_mid = self.getApple(size = SSize.M, sp=RIGHT * 4 + UP * 2)
         self.play(FadeIn(a_mid))
         line = Line(a_mid.get_center() + DOWN * 0.6, propText1.get_center() + UP * 0.5)
 
@@ -839,26 +839,27 @@ class Vid(Scene):
         self.wait()
 
         axes = Axes(
-            x_range=[-1, 5, 1],
-            y_range=[-3, 3, 1],
-            x_length=6,
-            tips=False
+            x_range=[0, 5, 1],
+            y_range=[0, 3, 1],
+            x_length=5,
+            y_length=3,
+            tips=False,
         )
         paxes = Axes(
-            x_range=[0, 2, 1],
-            y_range=[0, 2, 1],
-            x_length=2,
-            y_length=2,
+            x_range=[0, 3, 1],
+            y_range=[0, 4, 1],
+            x_length=3,
+            y_length=4,
             tips=False,
         )
 
         # Label axes p
-        paxes.shift(RIGHT * 3 + UP * 2)
+        paxes.shift(RIGHT * 3 + UP * 1)
         px_label = paxes.get_x_axis_label(r"p_x")
         py_label = paxes.get_y_axis_label(r"p_y")
 
         # Label axes x
-        axes.shift(RIGHT * 2)
+        axes.shift(RIGHT * 2.5 + UP * 1.5)
         x_label = axes.get_x_axis_label("x")
         y_label = axes.get_y_axis_label("y")
 
@@ -874,13 +875,13 @@ class Vid(Scene):
             )
         self.wait()
 
-        xvec = Arrow(axes.c2p(0, 0), axes.c2p(0, 0) + RIGHT * 2 + UP * 1, buff=0, color = YELLOW)
-        pvec = Arrow(paxes.c2p(0, 0), paxes.c2p(0, 0) + UP + RIGHT * 0.5, buff=0, color = BLUE)
+        xvec = Arrow(axes.c2p(0, 0), axes.c2p(0, 0) + RIGHT * 4 + UP * 2, buff=0, color = YELLOW)
+        pvec = Arrow(paxes.c2p(0, 0), paxes.c2p(0, 0) + UP * 3+ RIGHT * 2.5, buff=0, color = BLUE)
 
-        propTextNew1 = MathTex(r"\text{PositionRep(Apple)}=(x,y)").shift(RIGHT * 3 + DOWN  * 1.5).scale(0.8)
+        propTextNew1 = MathTex(r"\text{PositionRep(Apple)}=(x,y)").shift(RIGHT * 3 + DOWN  * 2.2).scale(0.8)
         propTextNew1.color = YELLOW
         
-        propTextNew2 = MathTex(r"\text{MomentumRep(Apple)}=(p_x, p_y)").shift(RIGHT * 3 + DOWN  * 2.2).scale(0.8)
+        propTextNew2 = MathTex(r"\text{MomentumRep(Apple)}=(p_x, p_y)").shift(RIGHT * 3 + DOWN  * 2.9).scale(0.8)
         propTextNew2.color = BLUE
 
         self.play(
@@ -890,10 +891,10 @@ class Vid(Scene):
             Create(pvec)
         )
         self.wait()
-        propTextNewNew1 = MathTex(r"\text{Position(Apple)}=(2,1)").shift(RIGHT * 3 + DOWN  * 1.5).scale(0.8)
+        propTextNewNew1 = MathTex(r"\text{Position(Apple)}=(4,2)").shift(RIGHT * 3 + DOWN  * 2.2).scale(0.8)
         propTextNewNew1.color = YELLOW
         
-        propTextNewNew2 = MathTex(r"\text{Momentum(Apple)}=(0.5, 1)").shift(RIGHT * 3 + DOWN  * 2.2).scale(0.8)
+        propTextNewNew2 = MathTex(r"\text{Momentum(Apple)}=(2.5, 3)").shift(RIGHT * 3 + DOWN  * 2.9).scale(0.8)
         propTextNewNew2.color = BLUE
 
 
