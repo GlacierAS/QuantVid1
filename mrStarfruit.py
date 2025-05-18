@@ -23,3 +23,12 @@ class MRSF():
     @staticmethod
     def get_sfidea(size = SSize.S) -> ImageMobject:
         return MRSF._get_sf_char(size, "mrstarfruit/idea_ready.png")
+    @staticmethod
+    def get_sflevi(size = SSize.S) -> ImageMobject:
+        return MRSF._get_sf_char(size, "mrstarfruit/levi_ready.png")
+    @staticmethod
+    def get_sfconfused(size = SSize.S) -> ImageMobject:
+        return MRSF._get_sf_char(size, "mrstarfruit/confused_ready.png")
+    @staticmethod
+    def get_sfshoked(size = SSize.S) -> ImageMobject:
+        return MRSF._get_sf_char(size, "mrstarfruit/shoked_ready.png")

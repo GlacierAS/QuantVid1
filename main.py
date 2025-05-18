@@ -20,11 +20,12 @@ class Vid(Scene):
         #self.preReqAni()
         #self.overView()
         # PART I
-        self.howPhycistDescribeNormalObject()
+        #self.howPhycistDescribeNormalObject()
         #self.propertyValue()
         #self.take_a_break()
         # PART 2
         #self.qcoord()
+        self.qcoord_1()
         #self.qcoord2_heisenburg()
         # TODO: Take a break2 
         # PART 3
@@ -580,6 +581,9 @@ class Vid(Scene):
         )
         self.play(FadeOut(everything_so_far))
         
+    def qcoord_1(self):
+        qs2 = Tex("Step 2: Attach Coordinate System to the Object").to_edge(UP)
+        self.add(qs2)
         cm_fact = MathTex(r"\text{CM: Position}(\;\;\;\;\;)=\text{PositionRep}(\;\;\;\;\;)").shift(UP)
         f_ma = MathTex(r"\vec{F}=m \vec{a}=\frac{d\vec{p}}{dt}").shift(DOWN * 0.5)
         regular_apple1 = self.getApple(size = SSize.S).shift(UP + LEFT * 0.73)
@@ -654,13 +658,21 @@ class Vid(Scene):
         """
         takeBreak = Tex("Take a break!").to_edge(UP)
         self.wait()
+        sf = MRSF.get_sfshoked().to_edge(DOWN)
+        sf2 = MRSF.get_sfshoked().to_edge(DOWN).shift(LEFT * 3)
+        sf2.pixel_array = np.fliplr(sf.pixel_array)
+        sf3 = MRSF.get_sfshoked().to_edge(DOWN).shift(RIGHT * 3)
+        sf4 = MRSF.get_sfshoked().to_edge(DOWN).shift(RIGHT * 4)
+
+        self.play(FadeIn(sf), FadeIn(sf2), FadeIn(sf3), FadeIn(sf4))
+
         self.play(Create(takeBreak))
         do_you_know = Text(msg, width=11).shift(UP * 0.5)
         self.play(Write(do_you_know), run_time = 7)
         box = SurroundingRectangle(do_you_know, color=RED, buff=0.2)
         self.play(Write(box))
 
-        # TODO: Insert sleeping prof starfruit
+        
     
     def propertyValue(self):
         qs1 = Tex("Step 1: Representing the Object by Assigning Properties")
@@ -707,7 +719,7 @@ class Vid(Scene):
             )
         )
 
-        discrete = Tex("1. Discrete infinite number of values").shift(UP * 2.7)
+        discrete = Tex("1. Discrete finite number of values").shift(UP * 2.7)
         spinVal = MathTex(r"\text{Spin} \in \left\{ m_s \in \mathbb{R} \;\middle|\; s \in \tfrac{1}{2} \mathbb{N}_0,\ m_s = -s + k,\ k \in \mathbb{Z},\ 0 \leq k \leq 2s \right\}",
             tex_template=self.qtex
         ).scale(0.8)
@@ -760,7 +772,7 @@ class Vid(Scene):
             Write(circle),
             Wait(),
         )
-        finite = Tex("Finite number of orientations?").shift(DOWN)
+        finite = Tex("Finite number of angular momentum?!").shift(DOWN)
         hbar = MathTex(r"\hbar = 1.054571817... \times 10^{-34} \text{ Js}").shift(DOWN * 2)
         self.play(Create(finite))
         self.wait()
@@ -868,11 +880,14 @@ class Vid(Scene):
             Create(axes), 
             Create(x_label), 
             Create(y_label),
+            Create(s2),
+        )
+        self.wait()
+        self.play(
             Create(px_label),
             Create(py_label),
-            Create(s2),
-            Create(paxes)
-            )
+            Create(paxes),
+        )
         self.wait()
 
         xvec = Arrow(axes.c2p(0, 0), axes.c2p(0, 0) + RIGHT * 4 + UP * 2, buff=0, color = YELLOW)
@@ -977,24 +992,25 @@ class Vid(Scene):
         
 
     def overView(self):
+
+        writing = MRSF.get_sfbook(size = SSize.L).shift(RIGHT * 5)
+        self.play(FadeIn(writing))
        
-        start = 3.5 * UP
+
+        start = 2.5 * UP + LEFT * 2
         t = Tex("In this video:")
         g1 = Tex("1. What is a Quantum State?")
-        e1 = MathTex(r"\ket{a}", tex_template=self.qtex)
+        e1 = MathTex(r"\ket{\psi}", tex_template=self.qtex)
         g3 = Tex("2. Coordinate system and Wave Function")
         e3 = MathTex(r"\braket{ x |\psi  }=\psi(x)", tex_template=self.qtex)
         g4 = Tex("3. Uncertainty and measurement").move_to(start + DOWN * 2)
         e4 = MathTex(r"\Delta x\Delta p_{x} \ge \hbar/2", tex_template=self.qtex)
-        g5 = Tex("4. Schrödinger equation").move_to(start + DOWN * 2.5)
-        e5 = MathTex(r"\hat{H}\ket{\psi} & =E\ket{\psi}", tex_template=self.qtex)
-        l = [t, g1, e1, g3, e3, g4, e4, g5, e5]
+        l = [t, g1, e1, g3, e3, g4, e4]
 
         b1 = SurroundingRectangle(e1, color=RED, buff=0.2)
         b3 = SurroundingRectangle(e3, color=RED, buff=0.2)
         b4 = SurroundingRectangle(e4, color=RED, buff=0.2)
-        b5 = SurroundingRectangle(e5, color=RED, buff=0.2)
-        b = [None, None, b1, None, b3, None, b4, None, b5]
+        b = [None, None, b1, None, b3, None, b4]
 
         for i, tex in enumerate(l): tex.move_to(start + DOWN * i * 0.8)
         for i, box in enumerate(b): 
