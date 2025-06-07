@@ -25,14 +25,176 @@ class Vid(Scene):
         #self.take_a_break()
         # PART 2
         #self.qcoord()
-        self.qcoord_1()
+        #self.qcoord_1() # WARNING: RESOURCE INTENSIVE (8GB NOT ENOUGH)
         #self.qcoord2_heisenburg()
-        # TODO: Take a break2 
+        #self.take_a_break_2()
         # PART 3
         #self.measurements()
         #self.measurements2()
-        # TODO: Take a break3
+        
         #self.measurements3()
+        #self.take_a_break_3()
+
+        # Supplemental part 1
+        #self.sup1()
+        #self.sup2()
+        #self.sup3() 
+        # Supplemental part 2
+        #self.sup4()
+        self.sup5()
+
+    def sup5(self):
+        t1 = Tex(r"In Summary").shift(RIGHT * 2)
+        t2 = Tex(r"Measurements are random").shift(RIGHT * 2 + UP * 0.7)
+        t25 = Tex(r"because...").shift(RIGHT * 2)
+        t3 = Tex(r"Properties can be incompatible!").shift(RIGHT * 2 + DOWN * 0.7)
+        
+        t4 = Tex(r"Uncertainty Principle").shift(RIGHT * 2 + UP * 0.7)
+        t5 = Tex(r"captures ").shift(RIGHT * 2)
+        t6 = Tex(r"Randomness in Measurement!").shift(RIGHT * 2 + DOWN * 0.7)
+        
+        sf = MRSF.get_sflevi(size=SSize.M).shift(LEFT * 3)
+        sf.pixel_array = np.fliplr(sf.pixel_array)
+        self.play(Create(t1), FadeIn(sf))
+        self.wait()
+        self.play(Transform(t1, VGroup(t2, t3, t25)))
+        self.wait()
+        self.play(Transform(t1, VGroup(t4, t5, t6)))
+
+    def sup4(self):
+        t1 = Tex(r"Position Representation \\ is NOT Position!").shift(RIGHT * 2)
+        t2 = MathTex(r"\text{In QM:} \\ \text{Position is the number } x \\ \text{Position Representation is }\psi(x) \\ \text{We can measure } x \text{ from } \psi(x)").shift(RIGHT * 2)
+        sf = MRSF.get_sfshoked(size=SSize.M).shift(LEFT * 3)
+        sf.pixel_array = np.fliplr(sf.pixel_array)
+        self.play(Create(t1), FadeIn(sf))
+        self.wait(2)
+        sfidea = MRSF.get_sfidea(size=SSize.M).shift(LEFT * 3)
+        sfidea.pixel_array = np.fliplr(sfidea.pixel_array)
+        self.play(FadeOut(sf))
+        self.play(FadeIn(sfidea), Transform(t1, t2))
+        self.wait()
+
+    def sup3(self):
+        cat = ImageMobject('Schrod_cat.png').scale(0.5)
+        self.play(FadeIn(cat))
+        self.wait()
+        sch = MathTex(r'i\hbar \frac{\partial}{\partial t} \Psi(\mathbf{r}, t) = \left[ -\frac{\hbar^2}{2m} \nabla^2 + V(\mathbf{r}, t) \right] \Psi(\mathbf{r}, t)')
+        self.play(cat.animate.shift(UP), Create(sch.shift(DOWN)))
+        self.wait()
+    def sup2(self):
+        vprereq = Tex(r"Video Prereq", " (You don't really need to know most for now)").to_edge(UP)
+        simpphys = MathTex(
+            r"\vec{F} = m\vec{a} = \frac{d \vec{p}}{dt} \text{ (Newton's Law)} \\",
+            r"T = \frac{1}{2}mv^2 = \frac{p^2}{2m} \text{ (Kinetic Energy)} \\",
+            r"H = T + V \text{ (Total Energy)}",
+        )
+        simpmath = MathTex(
+            r"\frac{ \partial  }{ \partial t } \text{ (Derivatives)}\\",
+            r"\int \text{ (Integrals)}\\", 
+            r"\delta(x) \text{ (Dirac Delta Function)}\\",
+            r"PDF(x) \text{ (Probability Density Function)}"
+        )
+        simplinalg = MathTex(
+            r"\begin{pmatrix}a & b \\c & d\end{pmatrix} \text{ (Matrix and Vectors)}\\",
+            r"A\vec{x}=\lambda \vec{x} \text{ (Eigenvalue Equation)} \\",
+            r"V \text{ (Vector Space)}"
+        )
+        simplinalg.shift(LEFT * 4 + DOWN * 2).scale(0.7)
+        simpphys.shift(LEFT * 2 + UP * 1.3).scale(0.7)
+        simpmath.shift(RIGHT * 3 + DOWN * 1).scale(0.7)
+        self.play(Write(vprereq))
+        self.play(Write(simpphys))
+        self.play(Write(simpmath))
+        self.play(Write(simplinalg))
+
+        box = SurroundingRectangle(vprereq[1], color=RED)
+        sf = MRSF.get_sflevi(size=SSize.S).shift(RIGHT * 4 + UP * 2)
+        self.play(FadeIn(sf), Create(box))
+        self.wait()
+
+    def sup1(self):
+        difficulty = Tex(r"43 Pages of Lecture Notes!").shift(RIGHT * 2)
+        tedious_cal = Tex(r"Spherical Harmonics \\ Separation of Variables \\ Series Solution \\ etc... ").shift(RIGHT * 2)
+        sf = MRSF.get_sfshoked(size=SSize.M).shift(LEFT * 3)
+        sf.pixel_array = np.fliplr(sf.pixel_array)
+        self.play(Create(difficulty), FadeIn(sf))
+        self.wait(2)
+        self.play(Transform(difficulty, tedious_cal))
+        self.wait(2)
+
+        simplify = Tex("Simplify?").shift(RIGHT * 2)
+        sfidea = MRSF.get_sfidea(size=SSize.M).shift(LEFT * 3)
+        sfidea.pixel_array = np.fliplr(sfidea.pixel_array)
+        self.play(FadeOut(sf))
+        self.play(FadeIn(sfidea), Transform(difficulty, simplify))
+        self.wait()
+
+
+
+    def take_a_break_3(self):
+        msg = """
+            More emphasis on $\psi$ possibly involve $i$: Having complex number involved
+            is very fundamental to quantum mechanics, but is it really necessary? 
+            In linear algebra we can represent complex number as a 2x2 real matrix:
+        """
+        eqn = MathTex(r"z = a + bi, \, z \longleftrightarrow \begin{pmatrix} a & -b \\ b & a\end{pmatrix}", tex_template=self.qtex)
+        msg2 = """
+        Theoretically we should be able to formulate QM using some matrix algebra, but it become much much complicated. we can think about complex number as some handy tool to simplify the calculation. It effectively avoiding us getting into the algebraic mess of some higher dimensional real Hilbert space.
+        """
+        
+        takeBreak = Tex("Take a break!").to_edge(UP)
+        self.wait()
+        sf = MRSF.get_sflevi().to_edge(DOWN)
+        sf2 = MRSF.get_sflevi().to_edge(DOWN).shift(LEFT * 3)
+        sf2.pixel_array = np.fliplr(sf.pixel_array)
+        sf3 = MRSF.get_sflevi().to_edge(DOWN).shift(RIGHT * 3)
+        sf4 = MRSF.get_sflevi().to_edge(DOWN).shift(RIGHT * 4)
+
+        self.play(FadeIn(sf), FadeIn(sf2), FadeIn(sf3), FadeIn(sf4))
+
+        self.play(Create(takeBreak))
+        do_you_know = Tex(msg, font_size=36).next_to(takeBreak, DOWN).shift(DOWN * 0.2)
+        eqn.next_to(do_you_know, DOWN)
+        dyk2 = Tex(msg2, font_size=36).next_to(eqn, DOWN)
+
+        msg_group = VGroup(do_you_know, eqn, dyk2)
+
+        self.play(Write(msg_group), run_time = 7)
+        box = SurroundingRectangle(msg_group, color=RED, buff=0.2)
+        self.play(Write(box))
+    def take_a_break_2(self):
+        msg = """
+            Previously we have compared Newton's Law with Schrödinger's equation, 
+            but this is kind of hand wavy. After all, newton's law are about 
+            positions and momentum evolution with time, while Schrödinger equation 
+            is about state energy evolution with time (and possibly position if in 
+            that representation). A more appropriate comparison is to Hamiltonian 
+            mechanics, which is equivalent to newtonian mechanics but formulated in 
+            a way that relates position and momentum with energy. In this sense, 
+            we can say Schrödinger's equation is like (use q for position),
+        """
+        eqn = MathTex(r"\frac{ \partial p }{ \partial t } =-\frac{ \partial H }{ \partial q }, \, \frac{ \partial q }{ \partial t } =\frac{ \partial H }{ \partial p }", tex_template=self.qtex)
+        
+        
+        takeBreak = Tex("Take a break!").to_edge(UP)
+        self.wait()
+        sf = MRSF.get_sfconfused().to_edge(DOWN)
+        sf2 = MRSF.get_sfconfused().to_edge(DOWN).shift(LEFT * 3)
+        sf2.pixel_array = np.fliplr(sf.pixel_array)
+        sf3 = MRSF.get_sfconfused().to_edge(DOWN).shift(RIGHT * 3)
+        sf4 = MRSF.get_sfconfused().to_edge(DOWN).shift(RIGHT * 4)
+
+        self.play(FadeIn(sf), FadeIn(sf2), FadeIn(sf3), FadeIn(sf4))
+
+        self.play(Create(takeBreak))
+        do_you_know = Text(msg, width=11).next_to(takeBreak, DOWN).shift(DOWN * 0.3)
+        eqn.next_to(do_you_know, DOWN)
+        msg_group = VGroup(do_you_know, eqn)
+
+        self.play(Write(msg_group), run_time = 7)
+        box = SurroundingRectangle(msg_group, color=RED, buff=0.2)
+        self.play(Write(box))
+    
     def measurements3(self):
         qs3 = Tex("Step 3: Making measurements").to_edge(UP)
         self.add(qs3)
@@ -319,6 +481,7 @@ class Vid(Scene):
         self.wait()
         its_ok = Tex("It's ok! Just a mathmatical tool!").shift(DOWN * 1.5)
         self.play(Create(its_ok))
+        self.wait()
 
     def qcoord2_heisenburg(self):
         qs2 = Tex("Step 2: Attach Coordinate System to the Object").to_edge(UP)
@@ -582,6 +745,7 @@ class Vid(Scene):
         self.play(FadeOut(everything_so_far))
         
     def qcoord_1(self):
+        # WARNING: THIS IS BIG AND MIGHT NOT RUN WELL ON 8GB DEVICES
         qs2 = Tex("Step 2: Attach Coordinate System to the Object").to_edge(UP)
         self.add(qs2)
         cm_fact = MathTex(r"\text{CM: Position}(\;\;\;\;\;)=\text{PositionRep}(\;\;\;\;\;)").shift(UP)
@@ -1035,7 +1199,7 @@ class Vid(Scene):
 
         name457 = MathTex(r"\text{PHYS 457}", font_size=36)
         desc457 = Tex("Quantum Physics II", font_size=24)
-        qcStudentText = Text("McGill Student Lern this in:").move_to(UP * 2)
+        qcStudentText = Text("McGill Student Learn this in:").move_to(UP * 2)
         label457 = VGroup(name457, desc457).arrange(DOWN, buff=0.15).move_to(border457.get_center())
         prereqText = Tex("Prerequiste (QC) for:").move_to(LEFT * 3.5 + UP * 3)
         phys457Course = VGroup(border457, label457)
